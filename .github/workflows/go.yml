@@ -3,6 +3,9 @@
 
 name: Go
 
+env:
+  WORKDIR: /simple-server
+
 on:
   push:
     branches: [ "main" ]
@@ -22,7 +25,31 @@ jobs:
         go-version: 1.19
 
     - name: Build
-      run: go build -v ./...
+      run: go build -o ${{ github.event.repository.name }}
 
     - name: Test
       run: go test -v ./...
+      
+    - name: copy file via ssh key
+      uses: appleboy/scp-action@master
+      with:
+        host: ${{ secrets.HOST }}
+        username: ${{ secrets.USERNAME }}
+        port: ${{ secrets.PORT }}
+        key: ${{ secrets.KEY }}
+        source: "./public,./${{ github.event.repository.name }}"
+        target: ${{ env.WORKDIR }}
+  run:
+    runs-on: ubuntu-latest
+    steps:
+      - name: Set and Run
+        uses: appleboy/ssh-action@master
+        with:
+          host: ${{ secrets.HOST }}
+          port: ${{ secrets.PORT }}
+          username: ${{ secrets.USERNAME }}
+          key: ${{ secrets.KEY }}
+          script: |
+            cd ${{ env.WORKDIR }}
+            ls -lah
+            sudo systemctl restart ${{ github.event.repository.name }}
