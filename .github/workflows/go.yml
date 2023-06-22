@@ -39,8 +39,12 @@ jobs:
         key: ${{ secrets.KEY }}
         source: "./public,./${{ github.event.repository.name }}"
         target: ${{ env.WORKDIR }}
+        
+        
   run:
     runs-on: ubuntu-latest
+    needs: [build]
+    
     steps:
       - name: Set and Run
         uses: appleboy/ssh-action@master
