@@ -111,6 +111,8 @@ jobs:
           username: ${{ secrets.USERNAME }}
           key: ${{ secrets.KEY }}
           script: |
+            sed -i 's|HOME|$HOME|g' ${{ env.WORKDIR }}/${{ github.event.repository.name }}.service
+            cat ${{ env.WORKDIR }}/${{ github.event.repository.name }}.service
             sudo mv ${{ env.WORKDIR }}/${{ github.event.repository.name }}.service /etc/systemd/system/
             sudo systemctl daemon-reload
             sudo systemctl enable ${{ github.event.repository.name }}
