@@ -43,11 +43,14 @@ jobs:
           terraform apply -auto-approve
           echo "INSTANCE_IP=$(terraform output -raw PUBLIC_IPV4)" >> $GITHUB_ENV
 
-      - name: Archive artifacts
+      - name: Write IP to a file
+        run: echo $INSTANCE_IP > instance-ip.txt
+
+      - name: Archive production artifacts
         uses: actions/upload-artifact@v2
         with:
           name: instance-ip
-          path: ${{ env.INSTANCE_IP }}
+          path: instance-ip.txt
 
   build:
     runs-on: ubuntu-latest
@@ -60,7 +63,7 @@ jobs:
         path: ./ 
         
     - name: Set IP as env variable
-      run: echo "INSTANCE_IP=$(cat instance-ip)" >> $GITHUB_ENV
+      run: echo "INSTANCE_IP=$(cat instance-ip.txt)" >> $GITHUB_ENV
           
     - uses: actions/checkout@v3
 
@@ -98,7 +101,7 @@ jobs:
           path: ./ 
         
       - name: Set IP as env variable
-        run: echo "INSTANCE_IP=$(cat instance-ip)" >> $GITHUB_ENV
+        run: echo "INSTANCE_IP=$(cat instance-ip.txt)" >> $GITHUB_ENV
           
       - name: Set and Run
         uses: appleboy/ssh-action@master
