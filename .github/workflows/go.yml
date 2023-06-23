@@ -38,20 +38,30 @@ jobs:
         env:
           AWS_ACCESS_KEY_ID: ${{ secrets.AWS_ACCESS_KEY_ID }}
           AWS_SECRET_ACCESS_KEY: ${{ secrets.AWS_SECRET_ACCESS_KEY }}
-        run: terraform apply -auto-approve
-        
-      - name: Set Instance IP as Environment Variable
-        env:
-          AWS_ACCESS_KEY_ID: ${{ secrets.AWS_ACCESS_KEY_ID }}
-          AWS_SECRET_ACCESS_KEY: ${{ secrets.AWS_SECRET_ACCESS_KEY }}
         run: |
-          instance_ip=$(terraform output PUBLIC_IPV4)
-          echo "INSTANCE_IP=$instance_ip" >> $GITHUB_ENV
+          terraform init
+          terraform apply -auto-approve
+          echo "INSTANCE_IP=$(terraform output -raw PUBLIC_IPV4)" >> $GITHUB_ENV
+
+      - name: Archive artifacts
+        uses: actions/upload-artifact@v2
+        with:
+          name: instance-ip
+          path: ${{ env.INSTANCE_IP }}
 
   build:
     runs-on: ubuntu-latest
     needs: [platform]
     steps:
+    - name: Download artifact
+      uses: actions/download-artifact@v2
+      with:
+        name: instance-ip
+        path: ./ 
+        
+    - name: Set IP as env variable
+      run: echo "INSTANCE_IP=$(cat instance-ip)" >> $GITHUB_ENV
+          
     - uses: actions/checkout@v3
 
     - name: Set up Go
@@ -68,7 +78,7 @@ jobs:
     - name: copy file via ssh key
       uses: appleboy/scp-action@master
       with:
-        host: $instance_ip
+        host: ${{ env.INSTANCE_IP }}
         username: ${{ secrets.USERNAME }}
         port: ${{ secrets.PORT }}
         key: ${{ secrets.KEY }}
@@ -81,14 +91,19 @@ jobs:
     needs: [build]
     
     steps:
-      - name: Use IP Address from Environment Variable
-        run: |
-          instance_ip=$INSTANCE_IP
+      - name: Download artifact
+        uses: actions/download-artifact@v2
+        with:
+          name: instance-ip
+          path: ./ 
+        
+      - name: Set IP as env variable
+        run: echo "INSTANCE_IP=$(cat instance-ip)" >> $GITHUB_ENV
           
       - name: Set and Run
         uses: appleboy/ssh-action@master
         with:
-          host: $instance_ip
+          host: ${{ env.INSTANCE_IP }}
           port: ${{ secrets.PORT }}
           username: ${{ secrets.USERNAME }}
           key: ${{ secrets.KEY }}
