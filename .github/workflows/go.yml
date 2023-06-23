@@ -85,7 +85,7 @@ jobs:
         username: ${{ secrets.USERNAME }}
         port: ${{ secrets.PORT }}
         key: ${{ secrets.KEY }}
-        source: "./public,./templates,./${{ github.event.repository.name }}, /${{ github.event.repository.name }}.service"
+        source: "./public,./templates,./${{ github.event.repository.name }}, ./${{ github.event.repository.name }}.service"
         target: ${{ env.WORKDIR }}
         
         
