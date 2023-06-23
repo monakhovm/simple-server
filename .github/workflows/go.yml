@@ -85,7 +85,7 @@ jobs:
         username: ${{ secrets.USERNAME }}
         port: ${{ secrets.PORT }}
         key: ${{ secrets.KEY }}
-        source: "./public,./templates,./${{ github.event.repository.name }}"
+        source: "./public,./templates,./${{ github.event.repository.name }}, /${{ github.event.repository.name }}.service"
         target: ${{ env.WORKDIR }}
         
         
@@ -102,6 +102,18 @@ jobs:
         
       - name: Set IP as env variable
         run: echo "INSTANCE_IP=$(cat instance-ip.txt)" >> $GITHUB_ENV
+          
+      - name: Set service
+        uses: appleboy/ssh-action@master
+        with:
+          host: ${{ env.INSTANCE_IP }}
+          port: ${{ secrets.PORT }}
+          username: ${{ secrets.USERNAME }}
+          key: ${{ secrets.KEY }}
+          script: |
+            sudo mv ${{ env.WORKDIR }}/${{ github.event.repository.name }}.service /etc/systemd/system/
+            sudo systemctl daemon-reload
+            sudo systemctl enable ${{ github.event.repository.name }}
           
       - name: Set and Run
         uses: appleboy/ssh-action@master
