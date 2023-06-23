@@ -5,8 +5,8 @@ Description='Simple-server service'
 Type=simple
 Restart=always
 RestartSec=5s
-WorkingDirectory=/home/ubuntu/simple-server
-ExecStart=/home/ubuntu/simple-server/simple-server
+WorkingDirectory=HOME/simple-server
+ExecStart=HOME/simple-server
 
 [Install]
 WantedBy=multi-user.target
