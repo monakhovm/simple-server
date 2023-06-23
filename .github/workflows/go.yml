@@ -41,6 +41,9 @@ jobs:
         run: terraform apply -auto-approve
         
       - name: Set Instance IP as Environment Variable
+        env:
+          AWS_ACCESS_KEY_ID: ${{ secrets.AWS_ACCESS_KEY_ID }}
+          AWS_SECRET_ACCESS_KEY: ${{ secrets.AWS_SECRET_ACCESS_KEY }}
         run: |
           instance_ip=$(terraform output PUBLIC_IPV4)
           echo "INSTANCE_IP=$instance_ip" >> $GITHUB_ENV
