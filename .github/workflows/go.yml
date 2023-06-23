@@ -13,6 +13,27 @@ on:
     branches: [ "main" ]
 
 jobs:
+  
+  platform:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/chechout@v3
+      
+      - name: Set AWS Creds
+        run: |
+          export AWS_ACCESS_KEY_ID=${{ secrets.AWS_ACCESS_KEY_ID }}
+          export AWS_SECRET_ACCESS_KEY=${{ secrets.AWS_SECRET_ACCESS_KEY }}
+        
+      - name: Terraform install
+        run: apt install -y terraform
+        
+      - name: Run terraform apply
+        run: terraform apply -auto-approve
+        
+      - name: Set Instance IP as Environment Variable
+        run: |
+          instance_ip=$(terraform output PUBLIC_IPV4)
+          echo "INSTANCE_IP=$instance_ip" >> $GITHUB_ENV
 
   build:
     runs-on: ubuntu-latest
@@ -46,14 +67,17 @@ jobs:
     needs: [build]
     
     steps:
+      - name: Use IP Address from Environment Variable
+        run: |
+          instance_ip=$INSTANCE_IP
+          
       - name: Set and Run
         uses: appleboy/ssh-action@master
         with:
-          host: ${{ secrets.HOST }}
+          host: $instance_ip
           port: ${{ secrets.PORT }}
           username: ${{ secrets.USERNAME }}
           key: ${{ secrets.KEY }}
           script: |
             cd ${{ env.WORKDIR }}
-            ls -lah
             sudo systemctl restart ${{ github.event.repository.name }}
