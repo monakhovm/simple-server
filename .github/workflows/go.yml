@@ -25,7 +25,7 @@ jobs:
           export AWS_SECRET_ACCESS_KEY=${{ secrets.AWS_SECRET_ACCESS_KEY }}
         
       - name: Terraform install
-        run: apt install -y terraform
+        run: sudo apt install -y terraform
         
       - name: Run terraform apply
         run: terraform apply -auto-approve
