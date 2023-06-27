@@ -9,6 +9,5 @@ COPY --from=builder /app/simple-server .
 COPY ./public ./public
 COPY ./templates ./templates
 RUN ls -lah
-EXPOSE 8080
 CMD ["./simple-server"]
 
