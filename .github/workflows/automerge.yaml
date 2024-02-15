@@ -1,0 +1,50 @@
+name: Automate PR Creation and Merge
+
+on:
+  pull_request:
+    branches:
+      - main
+    types: [closed]
+
+jobs:
+  create-and-merge-pr:
+    if: github.event.pull_request.merged == true
+    runs-on: ubuntu-latest
+    steps:
+      - name: Checkout code
+        uses: actions/checkout@v2
+
+      - name: Setup Git
+        run: |
+          git config --global user.email "${{ secrets.MAIN_GITHUB_EMAIL }}"
+          git config --global user.name "${{ secrets.MAIN_GITHUB_NAME }}"
+
+      - name: Create New Branch for PR
+        run: |
+          git checkout -b temp-branch-for-pr prod
+          git merge main
+          git push origin temp-branch-for-pr
+
+      - name: Create PR from main to prod
+        uses: repo-sync/pull-request@v2
+        with:
+          destination_branch: "prod"
+          source_branch: "temp-branch-for-pr"
+          github_token: ${{ secrets.GITHUB_TOKEN }}
+          pr_title: "Auto PR from main to prod"
+          pr_body: "This is an automated PR to merge changes from main to prod."
+          pr_label: "automerge"
+
+      # Optional: Automatically merge the PR
+      - name: Merge PR
+        uses: pascalgn/automerge-action@v0.14.3
+        with:
+          GITHUB_TOKEN: "${{ secrets.MAIN_GITHUB_TOKEN }}"
+          MERGE_LABELS: "automerge"
+          MERGE_METHOD: "merge"
+          MERGE_COMMIT_MESSAGE: "Automatically merged by GitHub Action"
+          MERGE_RETRIES: "6"
+          MERGE_RETRY_SLEEP: "10000"
+
+
+
