@@ -33,7 +33,7 @@ jobs:
         with:
           destination_branch: "prod"
           source_branch: "temp-branch-for-pr"
-          github_token: ${{ secrets.GITHUB_TOKEN }}
+          github_token: ${{ secrets.MAIN_GITHUB_TOKEN }}
           pr_title: "Auto PR from main to prod"
           pr_body: "This is an automated PR to merge changes from main to prod."
           pr_label: "automerge"
