@@ -23,6 +23,8 @@ jobs:
 
       - name: Create New Branch for PR
         run: |
+          git branch -d temp-branch-for-pr || exit 0
+          git push origin --delete temp-branch-for-pr || exit 0
           git checkout prod
           git checkout -b temp-branch-for-pr
           git merge main
