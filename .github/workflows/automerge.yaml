@@ -21,7 +21,8 @@ jobs:
 
       - name: Create New Branch for PR
         run: |
-          git checkout -b temp-branch-for-pr prod
+          git checkout prod
+          git checkout -b temp-branch-for-pr
           git merge main
           git push origin temp-branch-for-pr
 
