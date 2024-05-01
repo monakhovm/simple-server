@@ -12,7 +12,9 @@ jobs:
     runs-on: ubuntu-latest
     steps:
       - name: Checkout code
-        uses: actions/checkout@v2
+        uses: actions/checkout@v4
+        with:
+          fetch-depth: 0
 
       - name: Setup Git
         run: |
@@ -21,7 +23,8 @@ jobs:
 
       - name: Create New Branch for PR
         run: |
-          git checkout -b temp-branch-for-pr prod
+          git checkout prod
+          git checkout -b temp-branch-for-pr
           git merge main
           git push origin temp-branch-for-pr
 
@@ -45,6 +48,8 @@ jobs:
           MERGE_COMMIT_MESSAGE: "Automatically merged by GitHub Action"
           MERGE_RETRIES: "6"
           MERGE_RETRY_SLEEP: "10000"
+
+
 
 
 
