@@ -1,4 +1,4 @@
-name: Docker Image CI ${GITHUB_REF}
+name: Docker Image CI ${GITHUB_REF#refs/heads/}
 
 on:
   push:
@@ -14,4 +14,4 @@ jobs:
     - name: script
       shell: bash
       run: |
-        echo ${GITHUB_REF}
+        echo ${GITHUB_REF#refs/heads/}
