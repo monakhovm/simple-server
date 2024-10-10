@@ -1,0 +1,17 @@
+name: Docker Image CI ${GITHUB_REF}
+
+on:
+  push:
+    branches: [ "main" ]
+
+jobs:
+
+  build:
+
+    runs-on: ubuntu-latest
+
+    steps:
+    - name: script
+      shell: bash
+      run: |
+        echo ${GITHUB_REF}
